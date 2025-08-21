@@ -3,184 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Telegram Test</title>
+    <title>My Telegram Web App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
             padding: 20px;
-            background: #f0f0f0;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
         }
-        .test-box {
-            background: white;
-            padding: 20px;
-            margin: 10px 0;
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--tg-theme-text-color, #000000);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #999999);
             border-radius: 8px;
-            border: 2px solid #ddd;
+            background: var(--tg-theme-secondary-bg-color, #f8f8f8);
+            color: var(--tg-theme-text-color, #000000);
+            font-size: 16px;
+            box-sizing: border-box;
         }
-        .success { border-color: #28a745; background: #d4edda; }
-        .error { border-color: #dc3545; background: #f8d7da; }
-        .warning { border-color: #ffc107; background: #fff3cd; }
-        button {
-            background: #007bff;
-            color: white;
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--tg-theme-button-color, #2481cc);
+        }
+        
+        .btn {
+            background: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
-            padding: 15px 25px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            margin: 10px 0;
             width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #f8f8f8);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+        }
+        
+        .list-item {
+            background: var(--tg-theme-secondary-bg-color, #f8f8f8);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .priority-high { border-left: 4px solid #ff4757; }
+        .priority-medium { border-left: 4px solid #ffa502; }
+        .priority-low { border-left: 4px solid #2ed573; }
+        
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 30px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #2481cc);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #999999);
         }
     </style>
 </head>
 <body>
-    <h1>🔍 Telegram Web App Test</h1>
-    
-    <div id="test-results"></div>
-    
-    <button onclick="sendTestData()">📤 Send Test Data to Bot</button>
-    <button onclick="showMoreInfo()">ℹ️ Show More Info</button>
-    
-    <div id="detailed-info" style="display: none;"></div>
-    
+    <div class="container">
+        <h1>📝 Task Manager</h1>
+        
+        <div class="card">
+            <div class="form-group">
+                <label for="task">📋 Task Name:</label>
+                <input type="text" id="task" placeholder="Enter your task..." maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="priority">⭐ Priority Level:</label>
+                <select id="priority">
+                    <option value="low">🟢 Low Priority</option>
+                    <option value="medium">🟡 Medium Priority</option>
+                    <option value="high">🔴 High Priority</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">📝 Description (Optional):</label>
+                <textarea id="description" rows="3" placeholder="Add more details..."></textarea>
+            </div>
+            
+            <button class="btn" onclick="addTask()">➕ Add Task</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-tasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="high-priority">0</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completed">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+        
+        <h2>📋 Your Tasks</h2>
+        <div id="tasks-list">
+            <div style="text-align: center; color: var(--tg-theme-hint-color); padding: 20px;">
+                No tasks yet. Add your first task above! 🚀
+            </div>
+        </div>
+    </div>
+
     <script>
-        function addResult(message, type = 'test-box') {
-            const div = document.createElement('div');
-            div.className = type;
-            div.innerHTML = message;
-            document.getElementById('test-results').appendChild(div);
-        }
+        // Initialize Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.ready();
         
-        // Test 1: Check if we're in Telegram
-        addResult(`<h3>Test 1: Environment Check</h3>
-            <strong>User Agent:</strong> ${navigator.userAgent}<br>
-            <strong>Referrer:</strong> ${document.referrer || 'none'}<br>
-            <strong>URL:</strong> ${window.location.href}`, 
-            navigator.userAgent.includes('Telegram') ? 'test-box success' : 'test-box error');
+        // Expand the web app to full height
+        tg.expand();
         
-        // Test 2: Check Telegram object
-        if (typeof window.Telegram === 'undefined') {
-            addResult(`<h3>Test 2: Telegram Object ❌</h3>
-                Telegram object not found! Make sure this script is loaded:<br>
-                <code>&lt;script src="https://telegram.org/js/telegram-web-app.js"&gt;&lt;/script&gt;</code>`, 'test-box error');
-        } else {
-            addResult(`<h3>Test 2: Telegram Object ✅</h3>
-                Telegram object found successfully!`, 'test-box success');
-        }
+        // Enable the main button
+        tg.MainButton.text = "📤 Send to Bot";
+        tg.MainButton.color = "#2481cc";
+        tg.MainButton.textColor = "#ffffff";
+        tg.MainButton.show();
         
-        // Test 3: Check WebApp
-        if (typeof window.Telegram?.WebApp === 'undefined') {
-            addResult(`<h3>Test 3: WebApp API ❌</h3>
-                WebApp API not available!`, 'test-box error');
-        } else {
-            const tg = window.Telegram.WebApp;
+        // Show back button
+        tg.BackButton.show();
+        
+        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        let taskIdCounter = parseInt(localStorage.getItem('taskIdCounter') || '1');
+        
+        // Load tasks on page load
+        renderTasks();
+        updateStats();
+        
+        function addTask() {
+            const taskInput = document.getElementById('task');
+            const prioritySelect = document.getElementById('priority');
+            const descriptionInput = document.getElementById('description');
             
-            // Initialize
-            try {
-                tg.ready();
-                tg.expand();
-                addResult(`<h3>Test 3: WebApp API ✅</h3>
-                    WebApp initialized successfully!`, 'test-box success');
-            } catch (error) {
-                addResult(`<h3>Test 3: WebApp API ⚠️</h3>
-                    Error initializing: ${error.message}`, 'test-box warning');
-            }
-            
-            // Test 4: Check platform and data
-            const platform = tg.platform || 'unknown';
-            const hasInitData = tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0;
-            
-            if (platform === 'unknown' || !hasInitData) {
-                addResult(`<h3>Test 4: Platform & Data ❌</h3>
-                    <strong>Platform:</strong> ${platform}<br>
-                    <strong>Has Init Data:</strong> ${hasInitData ? 'Yes' : 'No'}<br>
-                    <strong>Problem:</strong> Web app not opened through Telegram bot button!<br>
-                    <br>
-                    <strong>🔧 How to fix:</strong><br>
-                    1. Go to Telegram<br>
-                    2. Send /test to your bot<br>
-                    3. Click the web app button<br>
-                    4. Don't open this URL directly in browser!`, 'test-box error');
+            if (taskInput.value.trim()) {
+                const task = {
+                    id: taskIdCounter++,
+                    name: taskInput.value.trim(),
+                    description: descriptionInput.value.trim(),
+                    priority: prioritySelect.value,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                tasks.push(task);
+                saveToStorage();
+                renderTasks();
+                updateStats();
+                
+                // Clear form
+                taskInput.value = '';
+                descriptionInput.value = '';
+                prioritySelect.value = 'low';
+                
+                // Show haptic feedback
+                tg.HapticFeedback.impactOccurred('medium');
             } else {
-                const userData = tg.initDataUnsafe;
-                addResult(`<h3>Test 4: Platform & Data ✅</h3>
-                    <strong>Platform:</strong> ${platform}<br>
-                    <strong>User ID:</strong> ${userData.user?.id || 'N/A'}<br>
-                    <strong>Bot ID:</strong> ${userData.bot_id || 'N/A'}<br>
-                    <strong>Chat ID:</strong> ${userData.chat?.id || 'N/A'}<br>
-                    <strong>Username:</strong> ${userData.user?.username || 'N/A'}`, 'test-box success');
+                tg.showAlert('Please enter a task name!');
             }
-            
-            // Setup buttons
-            tg.MainButton.text = "📤 Send to Bot";
-            tg.MainButton.show();
-            tg.MainButton.onClick(() => sendTestData());
-            
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => tg.close());
         }
         
-        function sendTestData() {
-            if (typeof window.Telegram?.WebApp === 'undefined') {
-                alert('❌ Telegram WebApp not available!');
+        function removeTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveToStorage();
+            renderTasks();
+            updateStats();
+            tg.HapticFeedback.impactOccurred('light');
+        }
+        
+        function toggleComplete(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveToStorage();
+                renderTasks();
+                updateStats();
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+        
+        function renderTasks() {
+            const tasksList = document.getElementById('tasks-list');
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div style="text-align: center; color: var(--tg-theme-hint-color); padding: 20px;">
+                        No tasks yet. Add your first task above! 🚀
+                    </div>
+                `;
                 return;
             }
             
-            const tg = window.Telegram.WebApp;
+            tasksList.innerHTML = '';
             
-            const testData = {
-                message: "Hello from minimal test!",
-                timestamp: new Date().toISOString(),
-                test: "connectivity",
-                url: window.location.href,
-                userAgent: navigator.userAgent.substring(0, 100),
-                platform: tg.platform,
-                hasInitData: !!(tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0)
-            };
-            
-            try {
-                tg.sendData(JSON.stringify(testData));
-                addResult(`<h3>📤 Data Sent!</h3>
-                    Sent: <code>${JSON.stringify(testData, null, 2)}</code><br>
-                    <strong>Check your bot console for the received data!</strong>`, 'test-box success');
-            } catch (error) {
-                addResult(`<h3>📤 Send Failed ❌</h3>
-                    Error: ${error.message}`, 'test-box error');
-            }
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `list-item priority-${task.priority}`;
+                if (task.completed) taskElement.style.opacity = '0.6';
+                
+                taskElement.innerHTML = `
+                    <div style="flex: 1;" onclick="toggleComplete(${task.id})">
+                        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                            <span style="margin-right: 10px; font-size: 18px;">
+                                ${task.completed ? '✅' : '⭕'}
+                            </span>
+                            <strong style="${task.completed ? 'text-decoration: line-through;' : ''}">${task.name}</strong>
+                        </div>
+                        ${task.description ? `<div style="font-size: 12px; color: var(--tg-theme-hint-color); margin-left: 28px;">${task.description}</div>` : ''}
+                        <div style="font-size: 10px; color: var(--tg-theme-hint-color); margin-left: 28px;">
+                            ${getPriorityText(task.priority)} • Created: ${new Date(task.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <button class="remove-btn" onclick="removeTask(${task.id})">🗑️</button>
+                `;
+                tasksList.appendChild(taskElement);
+            });
         }
         
-        function showMoreInfo() {
-            const detailedDiv = document.getElementById('detailed-info');
-            detailedDiv.style.display = detailedDiv.style.display === 'none' ? 'block' : 'none';
+        function updateStats() {
+            const totalTasks = tasks.length;
+            const highPriorityTasks = tasks.filter(t => t.priority === 'high').length;
+            const completedTasks = tasks.filter(t => t.completed).length;
             
-            if (detailedDiv.style.display === 'block') {
-                let info = '<h3>🔍 Detailed Information</h3>';
-                
-                if (window.Telegram?.WebApp) {
-                    const tg = window.Telegram.WebApp;
-                    info += `
-                        <div class="test-box">
-                            <strong>Telegram WebApp Properties:</strong><br>
-                            Platform: ${tg.platform || 'undefined'}<br>
-                            Version: ${tg.version || 'undefined'}<br>
-                            Is Expanded: ${tg.isExpanded}<br>
-                            View Height: ${tg.viewportHeight}<br>
-                            <br>
-                            <strong>Raw Init Data:</strong><br>
-                            <code>${tg.initData || 'not available'}</code><br>
-                            <br>
-                            <strong>Parsed Init Data:</strong><br>
-                            <code>${JSON.stringify(tg.initDataUnsafe, null, 2)}</code>
-                        </div>
-                    `;
-                } else {
-                    info += '<div class="test-box error">Telegram WebApp not available for detailed inspection.</div>';
-                }
-                
-                detailedDiv.innerHTML = info;
-            }
+            document.getElementById('total-tasks').textContent = totalTasks;
+            document.getElementById('high-priority').textContent = highPriorityTasks;
+            document.getElementById('completed').textContent = completedTasks;
         }
+        
+        function getPriorityText(priority) {
+            const map = {
+                'low': '🟢 Low Priority',
+                'medium': '🟡 Medium Priority',
+                'high': '🔴 High Priority'
+            };
+            return map[priority] || priority;
+        }
+        
+        function saveToStorage() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('taskIdCounter', taskIdCounter.toString());
+        }
+        
+        function sendDataToBot() {
+            const data = {
+                tasks: tasks,
+                stats: {
+                    total: tasks.length,
+                    completed: tasks.filter(t => t.completed).length,
+                    highPriority: tasks.filter(t => t.priority === 'high').length
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            tg.sendData(JSON.stringify(data));
+        }
+        
+        // Handle main button click
+        tg.MainButton.onClick(sendDataToBot);
+        
+        // Handle back button
+        tg.BackButton.onClick(() => {
+            tg.close();
+        });
+        
+        // Allow Enter key to add task
+        document.getElementById('task').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+        
+        // Auto-resize text area
+        document.getElementById('description').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
     </script>
 </body>
 </html>
